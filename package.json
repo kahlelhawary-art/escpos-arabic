@@ -1,0 +1,54 @@
+{
+  "name": "escpos-arabic",
+  "version": "0.1.0",
+  "description": "Print Arabic receipts correctly on ESC/POS thermal printers: joined letters, right-to-left layout, columns, native QR codes and barcodes.",
+  "keywords": [
+    "escpos",
+    "esc-pos",
+    "thermal-printer",
+    "receipt",
+    "pos",
+    "arabic",
+    "rtl",
+    "bidi",
+    "harfbuzz",
+    "printer"
+  ],
+  "author": "Khalel Hawary",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kahlelhawary-art/escpos-arabic.git"
+  },
+  "homepage": "https://github.com/kahlelhawary-art/escpos-arabic#readme",
+  "bugs": "https://github.com/kahlelhawary-art/escpos-arabic/issues",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "types": "./index.d.ts",
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "example": "node examples/pharmacy.mjs"
+  },
+  "dependencies": {
+    "bidi-js": "^1.0.3",
+    "harfbuzzjs": "^1.6.4"
+  },
+  "devDependencies": {
+    "@embedpdf/fonts-arabic": "^1.0.0",
+    "@embedpdf/fonts-latin": "^1.0.0"
+  }
+}
