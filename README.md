@@ -1,9 +1,9 @@
 # escpos-arabic
 
 **Arabic receipts that print correctly on ESC/POS thermal printers.**
-Joined letters, right-to-left layout, Arabic and Latin in one line, columns that wrap, logos, native QR codes and barcodes.
+Joined letters, right-to-left layout, Arabic and Latin in one line, columns that wrap, logos, native QR codes and barcodes, and the QR code of Saudi tax invoices (ZATCA).
 
-> إيصالات عربية تُطبع صحيحة على طابعات الإيصالات الحرارية: حروف متصلة، من اليمين إلى اليسار، عربي وإنجليزي في السطر نفسه، أعمدة، شعار المحل، ورموز QR وباركود.
+> إيصالات عربية تُطبع صحيحة على طابعات الإيصالات الحرارية: حروف متصلة، من اليمين إلى اليسار، عربي وإنجليزي في السطر نفسه، أعمدة، شعار المحل، ورموز QR وباركود، ورمز QR للفاتورة الضريبية السعودية (هيئة الزكاة والضريبة والجمارك).
 
 <p align="center"><img src="examples/pharmacy.png" width="360" alt="A pharmacy receipt in Arabic, rendered by escpos-arabic"></p>
 
@@ -96,6 +96,26 @@ A thermal head prints dots, not grey, so the image is scaled to `width` dots (20
 
 Decode a logo once with `decodePNG(bytes)` and pass the result to every receipt.
 
+## Saudi tax invoices (ZATCA QR)
+
+Simplified tax invoices in Saudi Arabia carry a QR code with five fields: the seller's name, the VAT registration number, the time of issue, the total including VAT, and the VAT total. `zatcaQR()` builds that text (Tag-Length-Value, Base64), and `.qr()` prints it:
+
+```js
+import { zatcaQR } from 'escpos-arabic'
+
+receipt.qr(zatcaQR({
+  seller: 'مقهى الياسمين',
+  vatNumber: '399999999900003',
+  timestamp: new Date(), // written in UTC; or pass ISO 8601 text as your system records it
+  total: 115, // including VAT; numbers get two decimals
+  vat: 15,
+}))
+```
+
+The output matches the worked example in ZATCA's [QR code documentation](https://zatca1.discourse.group/t/structure-of-the-qr-code-for-electronic-tax-invoices/483) character for character, and wrong data (a VAT number that is not 15 digits, VAT above the total, a malformed time) is refused with a clear message.
+
+If your invoicing system is integrated with ZATCA's Fatoora platform, it signs each invoice and produces a longer QR code (with the invoice hash and signature). Print that text unchanged with `.qr(text)` instead of building one.
+
 ## API
 
 ### `createReceipt(options)` / `new Receipt(options)`
@@ -122,7 +142,7 @@ Decode a logo once with `decodePNG(bytes)` and pass the result to every receipt.
 | `.rule({ style, weight, space })` | `'dashed'`, `'solid'`, `'dotted'` or `'double'` |
 | `.image(source, { width, align, dither, tones, threshold })` | A logo or other image, centred by default. See [Logos and images](#logos-and-images) |
 | `.space(dots)` | Blank space |
-| `.qr(data, { size, ecc, align })` | Native QR code (model 2) |
+| `.qr(data, { size, ecc, align })` | Native QR code (model 2). For Saudi tax invoices, pass `zatcaQR({...})` (see [above](#saudi-tax-invoices-zatca-qr)) |
 | `.barcode(data, { type, height, width, text, align })` | `CODE128`, `EAN13`, `EAN8`, `CODE39`, `UPCA` |
 | `.feed(lines)` · `.cut({ feed, partial })` · `.drawer(pin)` | Paper and cash drawer |
 

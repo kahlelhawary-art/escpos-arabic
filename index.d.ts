@@ -147,6 +147,24 @@ export declare function ltr(text: string | number): string
 /** Keep text right to left inside a left-to-right receipt. */
 export declare function rtl(text: string | number): string
 export declare function toArabicDigits(text: string): string
+export interface ZatcaInvoice {
+  /** Seller's name, as registered. At most 255 bytes in UTF-8 (about 127 Arabic letters). */
+  seller: string
+  /** Seller's VAT registration number, 15 digits. */
+  vatNumber: string | number
+  /** When the invoice was issued. A Date is written in UTC (`2026-11-27T09:30:00Z`); ISO 8601 text is used as given. */
+  timestamp: Date | string
+  /** Invoice total including VAT. Numbers get two decimals; text like `"1150.00"` is used as given. */
+  total: number | string
+  /** VAT total. */
+  vat: number | string
+}
+
+/**
+ * The QR text for a Saudi simplified tax invoice (ZATCA): seller, VAT number, time,
+ * total and VAT as Base64 TLV. Print it with `.qr(zatcaQR({...}))`.
+ */
+export declare function zatcaQR(invoice: ZatcaInvoice): string
 /** Decode a PNG (any colour type, bit depth, transparency or interlacing) to RGBA. Decode a logo once and reuse it. */
 export declare function decodePNG(bytes: Uint8Array | ArrayBuffer): { width: number; height: number; data: Uint8Array }
 export declare const PAPER: Readonly<{ '58mm': 384; '80mm': 576 }>
