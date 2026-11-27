@@ -12,7 +12,11 @@
     "rtl",
     "bidi",
     "harfbuzz",
-    "printer"
+    "printer",
+    "zatca",
+    "fatoora",
+    "e-invoice",
+    "saudi"
   ],
   "author": "Khalel Hawary",
   "license": "MIT",

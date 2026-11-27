@@ -6,8 +6,9 @@ import { Bitmap, drawGlyphs } from './raster.js'
 import * as cmd from './escpos.js'
 import { encodePNG } from './png.js'
 import { decodePNG, toRGBA, darkness, resize, dither } from './image.js'
+import { zatcaQR } from './zatca.js'
 
-export { TypeFace, FontStack, toArabicDigits, Bitmap, decodePNG }
+export { TypeFace, FontStack, toArabicDigits, Bitmap, decodePNG, zatcaQR }
 
 /** Print-head widths in dots (203 dpi). */
 export const PAPER = Object.freeze({ '58mm': 384, '80mm': 576 })
