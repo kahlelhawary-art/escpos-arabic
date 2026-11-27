@@ -5,8 +5,9 @@ import { TypeFace, FontStack, shapeLine, wrapText, toArabicDigits } from './shap
 import { Bitmap, drawGlyphs } from './raster.js'
 import * as cmd from './escpos.js'
 import { encodePNG } from './png.js'
+import { decodePNG, toRGBA, darkness, resize, dither } from './image.js'
 
-export { TypeFace, FontStack, toArabicDigits, Bitmap }
+export { TypeFace, FontStack, toArabicDigits, Bitmap, decodePNG }
 
 /** Print-head widths in dots (203 dpi). */
 export const PAPER = Object.freeze({ '58mm': 384, '80mm': 576 })
@@ -188,6 +189,35 @@ export class Receipt {
     if (style === 'double') { this.y += weight + 3; line(this.y) }
     this.y += weight + space
     c.ensure(this.y)
+    return this
+  }
+
+  /**
+   * An image — a shop logo, a stamp, a signature. Scaled to `width` dots and turned
+   * into black and white dots; transparent areas stay blank.
+   * @param {Uint8Array|ArrayBuffer|{ width: number, height: number, data: Uint8Array|Uint8ClampedArray }} source
+   *   PNG bytes, or decoded RGBA pixels (a browser `ImageData`, or the result of {@link decodePNG})
+   * @param {{ width?: number, align?: 'start'|'center'|'end', dither?: 'atkinson'|'floyd-steinberg'|'none', tones?: [number, number], threshold?: number }} [o]
+   *   tones: darkness (0–1) at or below which a pixel prints as paper, and at or above which it prints solid black; default [0.1, 0.65].
+   *   threshold: with `dither: 'none'`, the darkness at which a dot is printed; default 0.5.
+   */
+  image(source, o = {}) {
+    const { align = 'center', dither: mode = 'atkinson', threshold, tones } = o
+    const img = toRGBA(source)
+    const room = this.width - 2 * this.padding
+    const W = Math.max(1, Math.min(room, Math.round(o.width ?? img.width)))
+    const H = Math.max(1, Math.round((img.height * W) / img.width))
+    const dots = dither(resize(darkness(img), img.width, img.height, W, H), W, H, mode, { threshold, tones })
+    const side = this._side(align, this.rtl)
+    const x = side === 'center' ? Math.round((this.width - W) / 2) : side === 'right' ? this.width - this.padding - W : this.padding
+    const c = this._canvas()
+    const top = Math.ceil(this.y)
+    c.ensure(top + H)
+    for (let y = 0; y < H; y++) {
+      const row = (top + y) * this.width + x
+      for (let i = 0; i < W; i++) if (dots[y * W + i]) c.data[row + i] = 1
+    }
+    this.y = top + H
     return this
   }
 

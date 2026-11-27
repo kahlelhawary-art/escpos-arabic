@@ -72,6 +72,29 @@ export interface BarcodeOptions {
   align?: Align
 }
 
+/** Decoded pixels, 4 bytes (RGBA) per pixel — a browser `ImageData` fits. */
+export interface RGBAImage {
+  width: number
+  height: number
+  data: Uint8Array | Uint8ClampedArray
+}
+
+export interface ImageOptions {
+  /** Width in dots; the height follows. Default: the image's own width, fitted to the paper. */
+  width?: number
+  /** Default `'center'`. */
+  align?: Align
+  /** How grey becomes dots. Default `'atkinson'`; `'none'` prints by `threshold`. */
+  dither?: 'atkinson' | 'floyd-steinberg' | 'none'
+  /**
+   * When dithering: darkness (0–1) at or below which a pixel prints as paper, and at or
+   * above which it prints solid black. Default `[0.1, 0.65]`, so dark brand colours print solid.
+   */
+  tones?: [number, number]
+  /** With `dither: 'none'`: darkness (0–1) at which a dot is printed. Default 0.5. */
+  threshold?: number
+}
+
 export declare class Bitmap {
   constructor(width: number)
   readonly width: number
@@ -102,6 +125,8 @@ export declare class Receipt {
   text(text: string | number, options?: TextOptions): this
   row(cells: Array<string | number>, options?: RowOptions): this
   rule(options?: RuleOptions): this
+  /** An image (a logo, a stamp): PNG bytes or decoded RGBA pixels. Transparent areas stay blank. */
+  image(source: Uint8Array | ArrayBuffer | RGBAImage, options?: ImageOptions): this
   space(dots?: number): this
   qr(data: string, options?: QrOptions): this
   barcode(data: string, options?: BarcodeOptions): this
@@ -122,4 +147,6 @@ export declare function ltr(text: string | number): string
 /** Keep text right to left inside a left-to-right receipt. */
 export declare function rtl(text: string | number): string
 export declare function toArabicDigits(text: string): string
+/** Decode a PNG (any colour type, bit depth, transparency or interlacing) to RGBA. Decode a logo once and reuse it. */
+export declare function decodePNG(bytes: Uint8Array | ArrayBuffer): { width: number; height: number; data: Uint8Array }
 export declare const PAPER: Readonly<{ '58mm': 384; '80mm': 576 }>
