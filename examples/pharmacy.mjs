@@ -1,4 +1,4 @@
-// A pharmacy receipt with fictional data: Arabic and Latin mixed, columns, totals, a QR code.
+// A pharmacy receipt with fictional data: a logo, Arabic and Latin mixed, columns, totals, a QR code.
 // Writes pharmacy.png (preview) and pharmacy.bin (the bytes you send to the printer).
 //   node examples/pharmacy.mjs
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -17,6 +17,8 @@ const receipt = createReceipt({
 })
 
 receipt
+  .image(readFileSync(new URL('./logo.png', import.meta.url)), { width: 128 })
+  .space(6)
   .text('صيدلية النور', { size: 44, bold: true, align: 'center' })
   .text('دمشق — شارع بغداد، بناء 12', { align: 'center' })
   .text(`هاتف: ${ltr('011 223 4455')}`, { align: 'center' })
