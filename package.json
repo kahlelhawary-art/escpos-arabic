@@ -1,6 +1,6 @@
 {
   "name": "escpos-arabic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Print Arabic receipts correctly on ESC/POS thermal printers: joined letters, right-to-left layout, columns, native QR codes and barcodes.",
   "keywords": [
     "escpos",
