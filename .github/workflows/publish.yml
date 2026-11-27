@@ -1,0 +1,49 @@
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    # Trusted publishing: npm checks this workflow's GitHub identity (OIDC), so
+    # no npm token is stored in the repository and no 2FA prompt is needed.
+    # The package on npmjs.com trusts exactly this file, publish.yml, in
+    # kahlelhawary-art/escpos-arabic. Renaming it breaks publishing.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - name: Use a recent npm
+        run: npm install -g npm@latest
+
+      # A release tagged v0.2.0 must publish version 0.2.0 and nothing else.
+      - name: Check the release tag matches package.json
+        if: github.event_name == 'release'
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
+            echo "Release tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+            exit 1
+          fi
+
+      - name: Install
+        run: npm ci
+
+      - name: Test before publishing
+        run: npm test
+
+      - name: Publish
+        run: npm publish
